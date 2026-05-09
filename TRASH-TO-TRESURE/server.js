@@ -14,17 +14,34 @@ const SERVICE_ACCOUNT_PATH =
   process.env.FIREBASE_SERVICE_ACCOUNT_PATH || "./firebase-service-account.json";
 
 let serviceAccount;
-try {
-  serviceAccount = require(SERVICE_ACCOUNT_PATH);
-} catch (err) {
-  console.error(
-    `Failed to load service account from ${SERVICE_ACCOUNT_PATH}:`,
-    err.message
-  );
-  console.error(
-    "Make sure firebase-service-account.json exists. See .env.example for setup."
-  );
-  process.exit(1);
+
+// Support two methods:
+// 1. FIREBASE_SERVICE_ACCOUNT_BASE64 env var (Render/production)
+// 2. File path via FIREBASE_SERVICE_ACCOUNT_PATH (local dev)
+if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+  try {
+    const decoded = Buffer.from(
+      process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
+      "base64"
+    ).toString("utf-8");
+    serviceAccount = JSON.parse(decoded);
+  } catch (err) {
+    console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_BASE64:", err.message);
+    process.exit(1);
+  }
+} else {
+  try {
+    serviceAccount = require(SERVICE_ACCOUNT_PATH);
+  } catch (err) {
+    console.error(
+      `Failed to load service account from ${SERVICE_ACCOUNT_PATH}:`,
+      err.message
+    );
+    console.error(
+      "Set FIREBASE_SERVICE_ACCOUNT_BASE64 (production) or provide firebase-service-account.json (local)."
+    );
+    process.exit(1);
+  }
 }
 
 try {

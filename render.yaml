@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: trash-to-treasure
+    runtime: node
+    rootDir: TRASH-TO-TRESURE
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: CORS_ORIGIN
+        value: https://trash-to-treasure.netlify.app
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false   # Set manually in Render dashboard
+      - key: FIREBASE_SERVICE_ACCOUNT_BASE64
+        sync: false   # Set manually in Render dashboard — see README
